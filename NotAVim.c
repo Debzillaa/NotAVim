@@ -94,12 +94,26 @@ char *C_HL_keywords[] = {
     "struct", "union", "typedef", "static", "enum", "class", "case",
     "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
     "void|", NULL};
+char *PY_HL_extensions[] = {".py", NULL};
+char *PY_HL_keywords[] = {
+    "def", "class", "if", "elif", "else", "while", "for", "break", "continue", "return", "try", "except", "finally", "import", "from", "as", "with", "pass", "lambda", "yield",
+    "True|", "False|", "None|", NULL};
+char *JS_HL_extensions[] = {".js", ".mjs", NULL};
+char *JS_HL_keywords[] = {
+    "var", "let", "const", "function", "if", "else", "switch", "case", "default", "for", "while", "do", "break", "continue", "return", "try", "catch", "finally", "throw", "class", "extends", "constructor", "super", "import", "from", "export", "default", "new", "this", "typeof", "instanceof", "void", "delete", "in", "of",
+    "true|", "false|", "null|", "undefined|", "NaN|", "Infinity|", NULL};
+char *HTML_HL_extensions[] = {".html", ".htm", NULL};
+char *HTML_HL_keywords[] = {
+    "html", "head", "body", "title", "meta", "link", "script", "style", "div", "span", "h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "img", "ul", "ol", "li", "table", "tr", "td", "th", "form", "input", "button", "textarea", "select", "option", "br", "hr", "!--", NULL};
+char *CSS_HL_extensions[] = {".css", NULL};
+char *CSS_HL_keywords[] = {
+    "align-content", "align-items", "align-self", "all", "animation", "animation-delay", "animation-direction", "animation-duration", "animation-fill-mode", "animation-iteration-count", "animation-name", "animation-play-state", "animation-timing-function", "backface-visibility", "background", "background-attachment", "background-blend-mode", "background-clip", "background-color", "background-image", "background-origin", "background-position", "background-repeat", "background-size", "border", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-style", "border-bottom-width", "border-collapse", "border-color", "border-image", "border-image-outset", "border-image-repeat", "border-image-slice", "border-image-source", "border-image-width", "border-left", "border-left-color", "border-left-style", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-style", "border-right-width", "border-spacing", "border-style", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-style", "border-top-width", "border-width", "bottom", "box-shadow", "box-sizing", "break-after", "break-before", "break-inside", "caption-side", "caret-color", "charset", "clear", "clip", "color", "column-count", "column-fill", "column-gap", "column-rule", "column-rule-color", "column-rule-style", "column-rule-width", "column-span", "column-width", "columns", "content", "counter-increment", "counter-reset", "cursor", "direction", "display", "empty-cells", "filter", "flex", "flex-basis", "flex-direction", "flex-flow", "flex-grow", "flex-shrink", "flex-wrap", "float", "font", "font-family", "font-feature-settings", "font-kerning", "font-language-override", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-synthesis", "font-variant", "font-variant-alternates", "font-variant-caps", "font-variant-east-asian", "font-variant-ligatures", "font-variant-numeric", "font-variant-position", "font-weight", "grid", "grid-area", "grid-auto-columns", "grid-auto-flow", "grid-auto-rows", "grid-column", "grid-column-end", "grid-column-gap", "grid-column-start", "grid-gap", "grid-row", "grid-row-end", "grid-row-gap", "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns", "grid-template-rows", "hanging-punctuation", "height", "hyphens", "image-rendering", "import", "isolation", "justify-content", "keyframes", "left", "letter-spacing", "line-break", "line-height", "list-style", "list-style-image", "list-style-position", "list-style-type", "margin", "margin-bottom", "margin-left", "margin-right", "margin-top", "mask", "mask-clip", "mask-composite", "mask-image", "mask-mode", "mask-origin", "mask-position", "mask-repeat", "mask-size", "mask-type", "max-height", "max-width", "min-height", "min-width", "mix-blend-mode", "object-fit", "object-position", "opacity", "order", "orphans", "outline", "outline-color", "outline-offset", "outline-style", "outline-width", "overflow", "overflow-wrap", "overflow-x", "overflow-y", "padding", "padding-bottom", "padding-left", "padding-right", "padding-top", "page-break-after", "page-break-before", "page-break-inside", "perspective", "perspective-origin", "place-content", "place-items", "place-self", "pointer-events", "position", "quotes", "resize", "right", "scroll-behavior", "tab-size", "table-layout", "text-align", "text-align-last", "text-combine-upright", "text-decoration", "text-decoration-color", "text-decoration-line", "text-decoration-style", "text-indent", "text-justify", "text-orientation", "text-overflow", "text-rendering", "text-shadow", "text-transform", "top", "transform", "transform-origin", "transform-style", "transition", "transition-delay", "transition-duration", "transition-property", "transition-timing-function", "unicode-bidi", "user-select", "vertical-align", "visibility", "white-space", "widows", "width", "word-break", "word-spacing", "word-wrap", "writing-mode", "z-index", NULL};
 struct editorSyntax HLDB[] = {
-    {"c",
-     C_HL_extensions,
-     C_HL_keywords,
-     "//", "/*", "*/",
-     HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"c", C_HL_extensions, C_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"python", PY_HL_extensions, PY_HL_keywords, "#", "'''", "'''", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"javascript", JS_HL_extensions, JS_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"html", HTML_HL_extensions, HTML_HL_keywords, NULL, "<!--", "-->", 0},
+    {"css", CSS_HL_extensions, CSS_HL_keywords, NULL, "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
 };
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
