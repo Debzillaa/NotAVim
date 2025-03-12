@@ -595,6 +595,12 @@ void editorInsertNewline()
         row->size = E.cx;
         row->chars[row->size] = '\0';
         editorUpdateRow(row);
+        int indent = 0;
+        while (indent < row->size && (row->chars[indent] == ' ' || row->chars[indent] == '\t'))
+        {
+            editorRowInsertChar(&E.row[E.cy + 1], indent, row->chars[indent]);
+            indent++;
+        }
     }
     E.cy++;
     E.cx = 0;
