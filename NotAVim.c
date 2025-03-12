@@ -578,6 +578,30 @@ void editorInsertChar(int c)
     {
         editorInsertRow(E.numrows, "", 0);
     }
+
+    erow *row = &E.row[E.cy];
+
+    // Check if the line needs to be wrapped
+    if (E.cx >= E.screencols - 1)
+    {
+        int wrap_pos = E.cx;
+        while (wrap_pos > 0 && !isspace(row->chars[wrap_pos]))
+        {
+            wrap_pos--;
+        }
+        if (wrap_pos == 0)
+        {
+            wrap_pos = E.cx;
+        }
+
+        editorInsertRow(E.cy + 1, &row->chars[wrap_pos], row->size - wrap_pos);
+        row->size = wrap_pos;
+        row->chars[row->size] = '\0';
+        editorUpdateRow(row);
+        E.cy++;
+        E.cx = 0;
+    }
+
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
 }
@@ -595,6 +619,8 @@ void editorInsertNewline()
         row->size = E.cx;
         row->chars[row->size] = '\0';
         editorUpdateRow(row);
+
+        // Auto-indent the new line
         int indent = 0;
         while (indent < row->size && (row->chars[indent] == ' ' || row->chars[indent] == '\t'))
         {
