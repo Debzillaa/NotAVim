@@ -851,11 +851,15 @@ void editorDrawRows(struct abuf *ab)
         }
         else
         {
+            char lineno[8];
+            snprintf(lineno, sizeof(lineno), "%4d ", filerow + 1);
+            abAppend(ab, lineno, strlen(lineno));
+
             int len = E.row[filerow].rsize - E.coloff;
             if (len < 0)
                 len = 0;
-            if (len > E.screencols)
-                len = E.screencols;
+            if (len > E.screencols - 5)
+                len = E.screencols - 5; // Adjust for line number width
             char *c = &E.row[filerow].render[E.coloff];
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
             int current_color = -1;
@@ -892,6 +896,7 @@ void editorDrawRows(struct abuf *ab)
                         char buf[16];
                         int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);
                         abAppend(ab, buf, clen);
+                        current_color = color;
                     }
                     abAppend(ab, &c[j], 1);
                 }
@@ -1154,6 +1159,7 @@ void initEditor()
     if (getWindowSize(&E.screenrows, &E.screencols) == -1)
         die("getWindowSize");
     E.screenrows -= 2;
+    E.screencols -= 5;
 }
 int main(int argc, char *argv[])
 {
