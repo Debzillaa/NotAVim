@@ -883,15 +883,11 @@ void editorDrawRows(struct abuf *ab)
         }
         else
         {
-            char lineno[8];
-            snprintf(lineno, sizeof(lineno), "%4d ", filerow + 1);
-            abAppend(ab, lineno, strlen(lineno));
-
             int len = E.row[filerow].rsize - E.coloff;
             if (len < 0)
                 len = 0;
-            if (len > E.screencols - 5)
-                len = E.screencols - 5; // Adjust for line number width
+            if (len > E.screencols)
+                len = E.screencols;
             char *c = &E.row[filerow].render[E.coloff];
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
             int current_color = -1;
@@ -1191,7 +1187,7 @@ void initEditor()
     if (getWindowSize(&E.screenrows, &E.screencols) == -1)
         die("getWindowSize");
     E.screenrows -= 2;
-    E.screencols -= 5;
+    E.screencols -= 5; // Adjust for line number width
 }
 int main(int argc, char *argv[])
 {
