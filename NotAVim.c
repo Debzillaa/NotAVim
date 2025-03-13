@@ -47,6 +47,12 @@ enum editorHighlight
 #define HL_HIGHLIGHT_NUMBERS (1 << 0)
 #define HL_HIGHLIGHT_STRINGS (1 << 1)
 
+enum editorMode
+{
+    MODE_NORMAL,
+    MODE_INSERT
+};
+
 /*** data ***/
 struct editorSyntax
 {
@@ -84,6 +90,10 @@ struct editorConfig
     time_t statusmsg_time;
     struct editorSyntax *syntax;
     struct termios orig_termios;
+    int select_start_x, select_start_y;
+    int select_end_x, select_end_y;
+    char *clipboard;
+    int mode;
 };
 struct editorConfig E;
 
@@ -94,12 +104,52 @@ char *C_HL_keywords[] = {
     "struct", "union", "typedef", "static", "enum", "class", "case",
     "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
     "void|", NULL};
+char *PY_HL_extensions[] = {".py", NULL};
+char *PY_HL_keywords[] = {
+    "def", "class", "if", "elif", "else", "while", "for", "break", "continue", "return",
+    "try", "except", "finally", "import", "from", "as", "pass", "raise", "with", "yield",
+    "True|", "False|", "None|", NULL};
+char *JS_HL_extensions[] = {".js", ".mjs", NULL};
+char *JS_HL_keywords[] = {
+    "function", "if", "else", "switch", "case", "break", "continue", "return", "for", "while",
+    "var", "let", "const", "class", "extends", "constructor", "static", "import", "from", "export",
+    "default", "try", "catch", "finally", "throw", "new", "this", "super", "true|", "false|", "null|", "undefined|", NULL};
+char *HTML_HL_extensions[] = {".html", ".htm", NULL};
+char *HTML_HL_keywords[] = {
+    "doctype|", "html|", "head|", "body|", "title|", "meta|", "link|", "script|", "style|",
+    "div|", "span|", "h1|", "h2|", "h3|", "h4|", "h5|", "h6|", "p|", "a|", "img|", "ul|", "ol|", "li|",
+    "table|", "tr|", "td|", "th|", "form|", "input|", "button|", "textarea|", "select|", "option|", "br|", "hr|", NULL};
+char *CSS_HL_extensions[] = {".css", NULL};
+char *CSS_HL_keywords[] = {
+    "color|", "background|", "font|", "border|", "margin|", "padding|", "display|", "position|",
+    "top|", "right|", "bottom|", "left|", "width|", "height|", "min-width|", "max-width|", "min-height|", "max-height|",
+    "flex|", "grid|", "align|", "justify|", "content|", "items|", "self|", "float|", "clear|", "overflow|", "visibility|", NULL};
 struct editorSyntax HLDB[] = {
     {"c",
      C_HL_extensions,
      C_HL_keywords,
      "//", "/*", "*/",
      HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"python",
+     PY_HL_extensions,
+     PY_HL_keywords,
+     "#", "'''", "'''",
+     HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"javascript",
+     JS_HL_extensions,
+     JS_HL_keywords,
+     "//", "/*", "*/",
+     HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"html",
+     HTML_HL_extensions,
+     HTML_HL_keywords,
+     NULL, "<!--", "-->",
+     HL_HIGHLIGHT_STRINGS},
+    {"css",
+     CSS_HL_extensions,
+     CSS_HL_keywords,
+     NULL, "/*", "*/",
+     HL_HIGHLIGHT_STRINGS},
 };
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
@@ -570,6 +620,26 @@ void editorInsertChar(int c)
     {
         editorInsertRow(E.numrows, "", 0);
     }
+    erow *row = &E.row[E.cy];
+    if (row->size >= E.screencols - 1)
+    {
+        int break_point = E.cx;
+        while (break_point > 0 && !isspace(row->chars[break_point - 1]))
+        {
+            break_point--;
+        }
+        if (break_point == 0)
+        {
+            break_point = E.cx;
+        }
+        editorInsertRow(E.cy + 1, &row->chars[break_point], row->size - break_point);
+        row = &E.row[E.cy];
+        row->size = break_point;
+        row->chars[row->size] = '\0';
+        editorUpdateRow(row);
+        E.cy++;
+        E.cx = 0;
+    }
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
 }
@@ -587,6 +657,13 @@ void editorInsertNewline()
         row->size = E.cx;
         row->chars[row->size] = '\0';
         editorUpdateRow(row);
+        int indent = 0;
+        while (row->chars[indent] == ' ' || row->chars[indent] == '\t')
+            indent++;
+        for (int i = 0; i < indent; i++)
+        {
+            editorRowInsertChar(&E.row[E.cy + 1], i, row->chars[i]);
+        }
     }
     E.cy++;
     E.cx = 0;
@@ -847,11 +924,14 @@ void editorDrawRows(struct abuf *ab)
         }
         else
         {
+            char lineno[16];
+            snprintf(lineno, sizeof(lineno), "%4d ", filerow + 1);
+            abAppend(ab, lineno, strlen(lineno));
             int len = E.row[filerow].rsize - E.coloff;
             if (len < 0)
                 len = 0;
-            if (len > E.screencols)
-                len = E.screencols;
+            if (len > E.screencols - 5)
+                len = E.screencols - 5;
             char *c = &E.row[filerow].render[E.coloff];
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
             int current_color = -1;
@@ -947,7 +1027,7 @@ void editorRefreshScreen()
     editorDrawMessageBar(&ab);
     char buf[32];
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
-             (E.rx - E.coloff) + 1);
+             (E.rx - E.coloff) + 6);
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, "\x1b[?25h", 6);
     write(STDOUT_FILENO, ab.b, ab.len);
@@ -1011,40 +1091,62 @@ char *editorPrompt(char *prompt, void (*callback)(char *, int))
             callback(buf, c);
     }
 }
-void editorMoveCursor(int key)
+void editorMoveCursor(int key, int selecting)
 {
+    if (selecting)
+    {
+        if (E.select_start_x == -1)
+        {
+            E.select_start_x = E.cx;
+            E.select_start_y = E.cy;
+        }
+        E.select_end_x = E.cx;
+        E.select_end_y = E.cy;
+    }
+    else
+    {
+        E.select_start_x = -1;
+        E.select_start_y = -1;
+        E.select_end_x = -1;
+        E.select_end_y = -1;
+    }
+
     erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
     switch (key)
     {
     case ARROW_LEFT:
-        if (E.cx != 0)
+    case 'h':
+        if (E.cx > 5)
         {
             E.cx--;
         }
         else if (E.cy > 0)
         {
             E.cy--;
-            E.cx = E.row[E.cy].size;
+            E.cx = E.row[E.cy].size + 5;
         }
         break;
     case ARROW_RIGHT:
-        if (row && E.cx < row->size)
+    case 'l':
+        if (row && E.cx < row->size + 5)
         {
             E.cx++;
         }
-        else if (row && E.cx == row->size)
+        else if (row && E.cx == row->size + 5)
         {
             E.cy++;
-            E.cx = 0;
+            E.cx = 5;
         }
         break;
     case ARROW_UP:
+    case 'k':
         if (E.cy != 0)
         {
             E.cy--;
         }
         break;
     case ARROW_DOWN:
+    case 'j':
         if (E.cy < E.numrows)
         {
             E.cy++;
@@ -1053,83 +1155,162 @@ void editorMoveCursor(int key)
     }
     row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
     int rowlen = row ? row->size : 0;
-    if (E.cx > rowlen)
+    if (E.cx > rowlen + 5)
     {
-        E.cx = rowlen;
+        E.cx = rowlen + 5;
+    }
+}
+void editorCopy()
+{
+    if (E.select_start_y == -1 || E.select_end_y == -1)
+        return;
+    int start_y = E.select_start_y < E.select_end_y ? E.select_start_y : E.select_end_y;
+    int end_y = E.select_start_y > E.select_end_y ? E.select_start_y : E.select_end_y;
+    int start_x = E.select_start_x < E.select_end_x ? E.select_start_x : E.select_end_x;
+    int end_x = E.select_start_x > E.select_end_x ? E.select_start_x : E.select_end_x;
+    free(E.clipboard);
+    E.clipboard = NULL;
+    for (int y = start_y; y <= end_y; y++)
+    {
+        erow *row = &E.row[y];
+        int start = (y == start_y) ? start_x : 0;
+        int end = (y == end_y) ? end_x : row->size;
+        int len = end - start;
+        E.clipboard = realloc(E.clipboard, (E.clipboard ? strlen(E.clipboard) : 0) + len + 2);
+        strncat(E.clipboard, &row->chars[start], len);
+        strcat(E.clipboard, "\n");
+    }
+}
+void editorPaste()
+{
+    if (!E.clipboard)
+        return;
+    char *p = E.clipboard;
+    while (*p)
+    {
+        if (*p == '\n')
+        {
+            editorInsertNewline();
+        }
+        else
+        {
+            editorInsertChar(*p);
+        }
+        p++;
     }
 }
 void editorProcessKeypress()
 {
     static int quit_times = NOTAVIM_QUIT_TIMES;
     int c = editorReadKey();
-    switch (c)
+    int selecting = 0;
+
+    if (E.mode == MODE_INSERT)
     {
-    case '\r':
-        editorInsertNewline();
-        break;
-    case CTRL_KEY('q'):
-        if (E.dirty && quit_times > 0)
+        switch (c)
         {
-            editorSetStatusMessage("WARNING!!! File has unsaved changes. "
-                                   "Press Ctrl-Q %d more times to quit.",
-                                   quit_times);
-            quit_times--;
-            return;
-        }
-        write(STDOUT_FILENO, "\x1b[2J", 4);
-        write(STDOUT_FILENO, "\x1b[H", 3);
-        exit(0);
-        break;
-    case CTRL_KEY('s'):
-        editorSave();
-        break;
-    case HOME_KEY:
-        E.cx = 0;
-        break;
-    case END_KEY:
-        if (E.cy < E.numrows)
-            E.cx = E.row[E.cy].size;
-        break;
-    case CTRL_KEY('f'):
-        editorFind();
-        break;
-    case BACKSPACE:
-    case CTRL_KEY('h'):
-    case DEL_KEY:
-        if (c == DEL_KEY)
-            editorMoveCursor(ARROW_RIGHT);
-        editorDelChar();
-        break;
-    case PAGE_UP:
-    case PAGE_DOWN:
-    {
-        if (c == PAGE_UP)
+        case '\r':
+            editorInsertNewline();
+            break;
+        case CTRL_KEY('q'):
+            if (E.dirty && quit_times > 0)
+            {
+                editorSetStatusMessage("WARNING!!! File has unsaved changes. "
+                                       "Press Ctrl-Q %d more times to quit.",
+                                       quit_times);
+                quit_times--;
+                return;
+            }
+            write(STDOUT_FILENO, "\x1b[2J", 4);
+            write(STDOUT_FILENO, "\x1b[H", 3);
+            exit(0);
+            break;
+        case CTRL_KEY('s'):
+            editorSave();
+            break;
+        case CTRL_KEY('c'):
+            editorCopy();
+            break;
+        case CTRL_KEY('v'):
+            editorPaste();
+            break;
+        case HOME_KEY:
+            E.cx = 0;
+            break;
+        case END_KEY:
+            if (E.cy < E.numrows)
+                E.cx = E.row[E.cy].size;
+            break;
+        case CTRL_KEY('f'):
+            editorFind();
+            break;
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            if (c == DEL_KEY)
+                editorMoveCursor(ARROW_RIGHT, 0);
+            editorDelChar();
+            break;
+        case PAGE_UP:
+        case PAGE_DOWN:
         {
-            E.cy = E.rowoff;
+            if (c == PAGE_UP)
+            {
+                E.cy = E.rowoff;
+            }
+            else if (c == PAGE_DOWN)
+            {
+                E.cy = E.rowoff + E.screenrows - 1;
+                if (E.cy > E.numrows)
+                    E.cy = E.numrows;
+            }
+            int times = E.screenrows;
+            while (times--)
+                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN, 0);
         }
-        else if (c == PAGE_DOWN)
-        {
-            E.cy = E.rowoff + E.screenrows - 1;
-            if (E.cy > E.numrows)
-                E.cy = E.numrows;
+        break;
+        case ARROW_UP:
+        case ARROW_DOWN:
+        case ARROW_LEFT:
+        case ARROW_RIGHT:
+            editorMoveCursor(c, selecting);
+            break;
+        case CTRL_KEY('l'):
+        case '\x1b':
+            E.mode = MODE_NORMAL;
+            break;
+        default:
+            editorInsertChar(c);
+            break;
         }
-        int times = E.screenrows;
-        while (times--)
-            editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
     }
-    break;
-    case ARROW_UP:
-    case ARROW_DOWN:
-    case ARROW_LEFT:
-    case ARROW_RIGHT:
-        editorMoveCursor(c);
-        break;
-    case CTRL_KEY('l'):
-    case '\x1b':
-        break;
-    default:
-        editorInsertChar(c);
-        break;
+    else if (E.mode == MODE_NORMAL)
+    {
+        switch (c)
+        {
+        case 'i':
+            E.mode = MODE_INSERT;
+            break;
+        case 'h':
+        case 'j':
+        case 'k':
+        case 'l':
+            editorMoveCursor(c, selecting);
+            break;
+        case 'q':
+            if (E.dirty && quit_times > 0)
+            {
+                editorSetStatusMessage("WARNING!!! File has unsaved changes. "
+                                       "Press q %d more times to quit.",
+                                       quit_times);
+                quit_times--;
+                return;
+            }
+            write(STDOUT_FILENO, "\x1b[2J", 4);
+            write(STDOUT_FILENO, "\x1b[H", 3);
+            exit(0);
+            break;
+        }
     }
     quit_times = NOTAVIM_QUIT_TIMES;
 }
@@ -1149,6 +1330,12 @@ void initEditor()
     E.statusmsg[0] = '\0';
     E.statusmsg_time = 0;
     E.syntax = NULL;
+    E.select_start_x = -1;
+    E.select_start_y = -1;
+    E.select_end_x = -1;
+    E.select_end_y = -1;
+    E.clipboard = NULL;
+    E.mode = MODE_NORMAL;
     if (getWindowSize(&E.screenrows, &E.screencols) == -1)
         die("getWindowSize");
     E.screenrows -= 2;
