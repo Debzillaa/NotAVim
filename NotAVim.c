@@ -94,26 +94,12 @@ char *C_HL_keywords[] = {
     "struct", "union", "typedef", "static", "enum", "class", "case",
     "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
     "void|", NULL};
-char *PY_HL_extensions[] = {".py", NULL};
-char *PY_HL_keywords[] = {
-    "def", "class", "if", "elif", "else", "while", "for", "break", "continue", "return", "try", "except", "finally", "import", "from", "as", "with", "pass", "lambda", "yield",
-    "True|", "False|", "None|", NULL};
-char *JS_HL_extensions[] = {".js", ".mjs", NULL};
-char *JS_HL_keywords[] = {
-    "var", "let", "const", "function", "if", "else", "switch", "case", "default", "for", "while", "do", "break", "continue", "return", "try", "catch", "finally", "throw", "class", "extends", "constructor", "super", "import", "from", "export", "default", "new", "this", "typeof", "instanceof", "void", "delete", "in", "of",
-    "true|", "false|", "null|", "undefined|", "NaN|", "Infinity|", NULL};
-char *HTML_HL_extensions[] = {".html", ".htm", NULL};
-char *HTML_HL_keywords[] = {
-    "html", "head", "body", "title", "meta", "link", "script", "style", "div", "span", "h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "img", "ul", "ol", "li", "table", "tr", "td", "th", "form", "input", "button", "textarea", "select", "option", "br", "hr", "!--", NULL};
-char *CSS_HL_extensions[] = {".css", NULL};
-char *CSS_HL_keywords[] = {
-    "align-content", "align-items", "align-self", "all", "animation", "animation-delay", "animation-direction", "animation-duration", "animation-fill-mode", "animation-iteration-count", "animation-name", "animation-play-state", "animation-timing-function", "backface-visibility", "background", "background-attachment", "background-blend-mode", "background-clip", "background-color", "background-image", "background-origin", "background-position", "background-repeat", "background-size", "border", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-style", "border-bottom-width", "border-collapse", "border-color", "border-image", "border-image-outset", "border-image-repeat", "border-image-slice", "border-image-source", "border-image-width", "border-left", "border-left-color", "border-left-style", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-style", "border-right-width", "border-spacing", "border-style", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-style", "border-top-width", "border-width", "bottom", "box-shadow", "box-sizing", "break-after", "break-before", "break-inside", "caption-side", "caret-color", "charset", "clear", "clip", "color", "column-count", "column-fill", "column-gap", "column-rule", "column-rule-color", "column-rule-style", "column-rule-width", "column-span", "column-width", "columns", "content", "counter-increment", "counter-reset", "cursor", "direction", "display", "empty-cells", "filter", "flex", "flex-basis", "flex-direction", "flex-flow", "flex-grow", "flex-shrink", "flex-wrap", "float", "font", "font-family", "font-feature-settings", "font-kerning", "font-language-override", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-synthesis", "font-variant", "font-variant-alternates", "font-variant-caps", "font-variant-east-asian", "font-variant-ligatures", "font-variant-numeric", "font-variant-position", "font-weight", "grid", "grid-area", "grid-auto-columns", "grid-auto-flow", "grid-auto-rows", "grid-column", "grid-column-end", "grid-column-gap", "grid-column-start", "grid-gap", "grid-row", "grid-row-end", "grid-row-gap", "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns", "grid-template-rows", "hanging-punctuation", "height", "hyphens", "image-rendering", "import", "isolation", "justify-content", "keyframes", "left", "letter-spacing", "line-break", "line-height", "list-style", "list-style-image", "list-style-position", "list-style-type", "margin", "margin-bottom", "margin-left", "margin-right", "margin-top", "mask", "mask-clip", "mask-composite", "mask-image", "mask-mode", "mask-origin", "mask-position", "mask-repeat", "mask-size", "mask-type", "max-height", "max-width", "min-height", "min-width", "mix-blend-mode", "object-fit", "object-position", "opacity", "order", "orphans", "outline", "outline-color", "outline-offset", "outline-style", "outline-width", "overflow", "overflow-wrap", "overflow-x", "overflow-y", "padding", "padding-bottom", "padding-left", "padding-right", "padding-top", "page-break-after", "page-break-before", "page-break-inside", "perspective", "perspective-origin", "place-content", "place-items", "place-self", "pointer-events", "position", "quotes", "resize", "right", "scroll-behavior", "tab-size", "table-layout", "text-align", "text-align-last", "text-combine-upright", "text-decoration", "text-decoration-color", "text-decoration-line", "text-decoration-style", "text-indent", "text-justify", "text-orientation", "text-overflow", "text-rendering", "text-shadow", "text-transform", "top", "transform", "transform-origin", "transform-style", "transition", "transition-delay", "transition-duration", "transition-property", "transition-timing-function", "unicode-bidi", "user-select", "vertical-align", "visibility", "white-space", "widows", "width", "word-break", "word-spacing", "word-wrap", "writing-mode", "z-index", NULL};
 struct editorSyntax HLDB[] = {
-    {"c", C_HL_extensions, C_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
-    {"python", PY_HL_extensions, PY_HL_keywords, "#", "'''", "'''", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
-    {"javascript", JS_HL_extensions, JS_HL_keywords, "//", "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
-    {"html", HTML_HL_extensions, HTML_HL_keywords, NULL, "<!--", "-->", 0},
-    {"css", CSS_HL_extensions, CSS_HL_keywords, NULL, "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
+    {"c",
+     C_HL_extensions,
+     C_HL_keywords,
+     "//", "/*", "*/",
+     HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS},
 };
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
@@ -130,26 +116,29 @@ void die(const char *s)
     perror(s);
     exit(1);
 }
+
 void disableRawMode()
 {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
         die("tcsetattr");
 }
+
 void enableRawMode()
 {
     if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1)
         die("tcgetattr");
     atexit(disableRawMode);
     struct termios raw = E.orig_termios;
-    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | IXON);
-    raw.c_iflag &= ~(OPOST);
-    raw.c_iflag &= ~(CS8);
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    raw.c_oflag &= ~(OPOST);
+    raw.c_cflag |= (CS8);
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1;
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
         die("tcsetattr");
 }
+
 int editorReadKey()
 {
     int nread;
@@ -229,6 +218,7 @@ int editorReadKey()
         return c;
     }
 }
+
 int getCursorPosition(int *rows, int *cols)
 {
     char buf[32];
@@ -272,6 +262,7 @@ int is_separator(int c)
 {
     return isspace(c) || c == '\0' || strchr(",.()+-/*=~%<>[];", c) != NULL;
 }
+
 void editorUpdateSyntax(erow *row)
 {
     row->hl = realloc(row->hl, row->rsize);
@@ -287,7 +278,6 @@ void editorUpdateSyntax(erow *row)
     int mce_len = mce ? strlen(mce) : 0;
     int prev_sep = 1;
     int in_string = 0;
-    int in_comment = 0;
     int in_comment = (row->idx > 0 && E.row[row->idx - 1].hl_open_comment);
     int i = 0;
     while (i < row->rsize)
@@ -384,11 +374,11 @@ void editorUpdateSyntax(erow *row)
                     i += klen;
                     break;
                 }
-                if (keywords[j] != NULL)
-                {
-                    prev_sep = 0;
-                    continue;
-                }
+            }
+            if (keywords[j] != NULL)
+            {
+                prev_sep = 0;
+                continue;
             }
         }
         prev_sep = is_separator(c);
@@ -437,11 +427,13 @@ void editorSelectSyntaxHighlight()
                 (!is_ext && strstr(E.filename, s->filematch[i])))
             {
                 E.syntax = s;
+
                 int filerow;
                 for (filerow = 0; filerow < E.numrows; filerow++)
                 {
                     editorUpdateSyntax(&E.row[filerow]);
                 }
+
                 return;
             }
             i++;
@@ -578,30 +570,6 @@ void editorInsertChar(int c)
     {
         editorInsertRow(E.numrows, "", 0);
     }
-
-    erow *row = &E.row[E.cy];
-
-    // Check if the line needs to be wrapped
-    if (E.cx >= E.screencols - 1)
-    {
-        int wrap_pos = E.cx;
-        while (wrap_pos > 0 && !isspace(row->chars[wrap_pos]))
-        {
-            wrap_pos--;
-        }
-        if (wrap_pos == 0)
-        {
-            wrap_pos = E.cx;
-        }
-
-        editorInsertRow(E.cy + 1, &row->chars[wrap_pos], row->size - wrap_pos);
-        row->size = wrap_pos;
-        row->chars[row->size] = '\0';
-        editorUpdateRow(row);
-        E.cy++;
-        E.cx = 0;
-    }
-
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
 }
@@ -619,14 +587,6 @@ void editorInsertNewline()
         row->size = E.cx;
         row->chars[row->size] = '\0';
         editorUpdateRow(row);
-
-        // Auto-indent the new line
-        int indent = 0;
-        while (indent < row->size && (row->chars[indent] == ' ' || row->chars[indent] == '\t'))
-        {
-            editorRowInsertChar(&E.row[E.cy + 1], indent, row->chars[indent]);
-            indent++;
-        }
     }
     E.cy++;
     E.cx = 0;
@@ -684,7 +644,8 @@ void editorOpen(char *filename)
     ssize_t linelen;
     while ((linelen = getline(&line, &linecap, fp)) != -1)
     {
-        while (linelen > 0 && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
+        while (linelen > 0 && (line[linelen - 1] == '\n' ||
+                               line[linelen - 1] == '\r'))
             linelen--;
         editorInsertRow(E.numrows, line, linelen);
     }
@@ -791,7 +752,8 @@ void editorFind()
     int saved_cy = E.cy;
     int saved_coloff = E.coloff;
     int saved_rowoff = E.rowoff;
-    char *query = editorPrompt("Search: %s (Use ESC/Arrows/Enter)", editorFindCallback);
+    char *query = editorPrompt("Search: %s (Use ESC/Arrows/Enter)",
+                               editorFindCallback);
     if (query)
     {
         free(query);
@@ -815,6 +777,7 @@ struct abuf
 void abAppend(struct abuf *ab, const char *s, int len)
 {
     char *new = realloc(ab->b, ab->len + len);
+
     if (new == NULL)
         return;
     memcpy(&new[ab->len], s, len);
@@ -834,6 +797,7 @@ void editorScroll()
     {
         E.rx = editorRowCxToRx(&E.row[E.cy], E.cx);
     }
+
     if (E.cy < E.rowoff)
     {
         E.rowoff = E.cy;
@@ -921,10 +885,10 @@ void editorDrawRows(struct abuf *ab)
                     int color = editorSyntaxToColor(hl[j]);
                     if (color != current_color)
                     {
+                        current_color = color;
                         char buf[16];
                         int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);
                         abAppend(ab, buf, clen);
-                        current_color = color;
                     }
                     abAppend(ab, &c[j], 1);
                 }
@@ -982,7 +946,8 @@ void editorRefreshScreen()
     editorDrawStatusBar(&ab);
     editorDrawMessageBar(&ab);
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, (E.rx - E.coloff) + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
+             (E.rx - E.coloff) + 1);
     abAppend(&ab, buf, strlen(buf));
     abAppend(&ab, "\x1b[?25h", 6);
     write(STDOUT_FILENO, ab.b, ab.len);
@@ -1093,7 +1058,7 @@ void editorMoveCursor(int key)
         E.cx = rowlen;
     }
 }
-void editorProcessKeyPress()
+void editorProcessKeypress()
 {
     static int quit_times = NOTAVIM_QUIT_TIMES;
     int c = editorReadKey();
@@ -1105,7 +1070,7 @@ void editorProcessKeyPress()
     case CTRL_KEY('q'):
         if (E.dirty && quit_times > 0)
         {
-            editorSetStatusMessage("WARNING!!! File has unsaved changes."
+            editorSetStatusMessage("WARNING!!! File has unsaved changes. "
                                    "Press Ctrl-Q %d more times to quit.",
                                    quit_times);
             quit_times--;
@@ -1176,8 +1141,8 @@ void initEditor()
     E.cy = 0;
     E.rx = 0;
     E.rowoff = 0;
-    E.numrows = 0;
     E.coloff = 0;
+    E.numrows = 0;
     E.row = NULL;
     E.dirty = 0;
     E.filename = NULL;
@@ -1187,7 +1152,6 @@ void initEditor()
     if (getWindowSize(&E.screenrows, &E.screencols) == -1)
         die("getWindowSize");
     E.screenrows -= 2;
-    E.screencols -= 5; // Adjust for line number width
 }
 int main(int argc, char *argv[])
 {
@@ -1197,11 +1161,12 @@ int main(int argc, char *argv[])
     {
         editorOpen(argv[1]);
     }
-    editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+    editorSetStatusMessage(
+        "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
     while (1)
     {
         editorRefreshScreen();
-        editorProcessKeyPress();
+        editorProcessKeypress();
     }
     return 0;
 }
