@@ -1,7 +1,4 @@
 /*** includes ***/
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -16,6 +13,9 @@
 #include <unistd.h>
 
 /*** defines ***/
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
 #define NOTAVIM_VERSION "0.0.1-69"
 #define NOTAVIM_TAB_STOP 8
 #define NOTAVIM_QUIT_TIMES 3
